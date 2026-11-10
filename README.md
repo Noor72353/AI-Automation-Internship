@@ -1,7 +1,7 @@
 # AI Automation Internship Portfolio
 
-**Internship:** AI Automation Internship  
-**Organization:** Techoneer, Rawalpindi, Pakistan  
+**Internship:** AI Automation Internship
+**Organization:** Techoneer, Rawalpindi, Pakistan
 **Focus:** Workflow Automation | n8n | Artificial Intelligence | API Integration
 
 Welcome to my AI Automation Internship Portfolio. This repository showcases the practical projects I have developed while learning and implementing workflow automation using n8n and AI-powered tools.
@@ -17,6 +17,7 @@ My work focuses on automating real-world processes, integrating external service
 **Description:** An automated customer feedback management system that collects customer responses, stores them in Google Sheets, and sends Gmail notifications when a customer submits a rating of 2 or below.
 
 **Key Features:**
+
 - Customer feedback collection through an n8n form.
 - Automated Google Sheets integration.
 - Conditional evaluation of customer ratings.
@@ -24,8 +25,8 @@ My work focuses on automating real-world processes, integrating external service
 
 **Technologies:** n8n, Google Sheets, Gmail.
 
-**Project Repository:**  
-[View Task 1 – Customer Feedback Automation](https://github.com/Noor72353/Task-1-Customer-Feedback-Automation)
+**Project Folder:**
+[View Task 1 – Customer Feedback Automation](./N8N%20Task%201/)
 
 ---
 
@@ -34,6 +35,7 @@ My work focuses on automating real-world processes, integrating external service
 **Description:** An automated weather monitoring system that retrieves Islamabad's 7-day forecast daily at 7:00 AM Pakistan Standard Time, stores weather data in Google Sheets, and sends Gmail alerts when configured extreme weather conditions are detected.
 
 **Key Features:**
+
 - Scheduled daily workflow execution.
 - Open-Meteo API integration.
 - 7-day weather forecast retrieval.
@@ -43,8 +45,8 @@ My work focuses on automating real-world processes, integrating external service
 
 **Technologies:** n8n, Open-Meteo API, Google Sheets, Gmail.
 
-**Project Repository:**  
-[View Task 2 – Weather Monitoring Automation](https://github.com/Noor72353/Task-2-Weather-Monitoring-Automation)
+**Project Folder:**
+[View Task 2 – Weather Monitoring Automation](./N8N%20Task%202/)
 
 ---
 
@@ -53,6 +55,7 @@ My work focuses on automating real-world processes, integrating external service
 **Description:** An AI-powered expense claim processing system that extracts information from receipt images using Google Gemini, validates expense details, detects duplicate claims, and automates manager approval or rejection.
 
 **Key Features:**
+
 - Employee expense submission through an online form.
 - AI-based receipt information extraction.
 - Expense data validation and duplicate detection.
@@ -63,8 +66,8 @@ My work focuses on automating real-world processes, integrating external service
 
 **Technologies:** n8n, Google Gemini, Google Sheets, Gmail, JavaScript.
 
-**Project Repository:**  
-[View Task 3 – Expense Claim Approval System](https://github.com/Noor72353/Task-3-Expense-Claim-Approval-System)
+**Project Folder:**
+[View Task 3 – Expense Claim Approval System](./N8N%20Task%203/)
 
 ---
 
@@ -84,7 +87,7 @@ New projects and learning achievements will be added as the internship progresse
 
 ## Technical Skills & Tools
 
-| Category | Technologies |
+| **Category** | **Technologies** |
 |---|---|
 | Workflow Automation | n8n |
 | AI & Machine Learning | Google Gemini, Ollama |
@@ -99,14 +102,15 @@ New projects and learning achievements will be added as the internship progresse
 
 ## About Me
 
-**Noorwali Khan**  
-BS in Computer Science  
-Federal Urdu University of Arts, Science & Technology (FUUAST), Islamabad  
-Graduation: 2026  
-CGPA: 3.75/4.00  
+**Noorwali Khan**
+BS in Computer Science
+Federal Urdu University of Arts, Science & Technology (FUUAST), Islamabad
+Graduation: 2026
+CGPA: 3.75/4.00
 Cohort Rank: 3rd
 
 **Research & Technical Interests:**
+
 - Artificial Intelligence
 - Machine Learning and Deep Learning
 - Computer Vision
