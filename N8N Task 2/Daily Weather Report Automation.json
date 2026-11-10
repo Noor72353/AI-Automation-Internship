@@ -1,0 +1,288 @@
+{
+  "name": "Daily Weather Report Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ee86c797-dbfb-444a-a5cc-8abb0f7ebec1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=33.68&longitude=73.05&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2c9a2e6c-4515-4f0e-8b97-349f4f82399f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const weather = $input.first().json;\n\nconst dates = weather.daily.time;\nconst maxTemps = weather.daily.temperature_2m_max;\nconst minTemps = weather.daily.temperature_2m_min;\nconst rainfall = weather.daily.precipitation_sum;\n\nreturn dates.map((date, index) => {\n  const max = maxTemps[index];\n  const min = minTemps[index];\n  const rain = rainfall[index];\n\n  let status = \"Normal\";\n\n  if (max >= 40) {\n    status = \"Extreme Heat\";\n  } else if (min <= 0) {\n    status = \"Extreme Cold\";\n  } else if (rain >= 30) {\n    status = \"Heavy Rain\";\n  }\n\n  return {\n    json: {\n      date: date,\n      city: \"Islamabad\",\n      max_temperature: max,\n      min_temperature: min,\n      precipitation: rain,\n      weather_status: status\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "27e9f78a-f477-4293-a0ff-b2ee369b5704",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ctLdjhtEhU0sMbg85EAAn8GzoqrWg2xHt4CpGE2OYug",
+          "mode": "list",
+          "cachedResultName": "Daily Weather Report",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ctLdjhtEhU0sMbg85EAAn8GzoqrWg2xHt4CpGE2OYug/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Weather Logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ctLdjhtEhU0sMbg85EAAn8GzoqrWg2xHt4CpGE2OYug/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "City": "={{ $json.city }}",
+            "Max Temperature": "={{ $json.max_temperature }}",
+            "Min Temperature": "={{ $json.min_temperature }}",
+            "Precipitation": "={{ $json.precipitation }}",
+            "Weather Status": "={{ $json.weather_status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Max Temperature",
+              "displayName": "Max Temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Min Temperature",
+              "displayName": "Min Temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Precipitation",
+              "displayName": "Precipitation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Weather Status",
+              "displayName": "Weather Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        0
+      ],
+      "id": "a71e5c7d-69fe-4594-81de-82be2cfdecdc",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sNGJwWMYhlwhnuOR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "87b63808-db86-4ade-8545-dc9cc3816424",
+              "leftValue": "={{ $json['Weather Status'] }}",
+              "rightValue": "Normal",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        896,
+        0
+      ],
+      "id": "1b6c9054-db4a-4033-9302-07f7d211aeb3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "noor.wali.khan.1214@gmail.com",
+        "subject": "Extreme Weather Alert – Islamabad",
+        "emailType": "text",
+        "message": "=EXTREME WEATHER ALERT!\n\nAn extreme weather condition has been detected in Islamabad.\n\nDate: {{ $json[\"Date\"] }}\nMaximum Temperature: {{ $json[\"Max Temperature\"] }} °C\nMinimum Temperature: {{ $json[\"Min Temperature\"] }} °C\nPrecipitation: {{ $json[\"Precipitation\"] }} mm\nWeather Status: {{ $json[\"Weather Status\"] }}\n\nPlease take the necessary precautions.\n\nDaily Weather Report Automation",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        -16
+      ],
+      "id": "466ad649-8f9e-488f-a8ab-56756fb63edd",
+      "name": "Send a message",
+      "webhookId": "3edec36a-7a0f-47a0-91f6-57719dfb4efc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "5XfDXv59u1L7wSOC",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "3cf9552a-a882-437b-9357-a33bd84254fa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a25d5227606d1b42a5bee87968496a3f81fb8f8d9153b6e66be34fb45af0e154"
+  },
+  "nodeGroups": [],
+  "id": "m4A3RS5FsyoE0aPT",
+  "tags": []
+}

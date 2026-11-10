@@ -1,0 +1,67 @@
+{
+  "name": "Task 3 - Expense Claim Error Handler.",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "107056b4-c168-4428-91bf-7792c6e957bc",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "p3001510@gmail.com",
+        "subject": "n8n Expense Claim Workflow - Technical Error Alert",
+        "emailType": "text",
+        "message": "Hello,  A technical error has occurred in the Expense Claim Management System.  Please check the failed execution in n8n to identify and resolve the issue.  Regards, n8n Error Handler",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "304c8469-b655-4399-8617-8cfc71b82c08",
+      "name": "Send a message",
+      "webhookId": "6022b998-bb51-4bd8-9c5e-1aec500d7278",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "93102a73-3bb1-47da-b826-60a97723765c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a25d5227606d1b42a5bee87968496a3f81fb8f8d9153b6e66be34fb45af0e154"
+  },
+  "nodeGroups": [],
+  "id": "TSgJsFJirPT8ZfcJ",
+  "tags": []
+}

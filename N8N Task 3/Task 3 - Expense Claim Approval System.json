@@ -1,0 +1,1187 @@
+{
+  "name": "Task 3 - Expense Claim Approval System",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Expense Claim Submission",
+        "formDescription": "Please complete this form and upload your expense receipt for manager approval.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Employee Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Employee Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Expense Category",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Travel"
+                  },
+                  {
+                    "option": "Food"
+                  },
+                  {
+                    "option": "Office Supplies"
+                  },
+                  {
+                    "option": "Equipment"
+                  },
+                  {
+                    "option": "Accommodation"
+                  },
+                  {
+                    "option": "Other"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Expense Description",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Receipt Upload",
+              "fieldType": "file",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2a73074d-90f2-4ba1-a078-1d11c824a627",
+      "name": "On form submission",
+      "webhookId": "ff8e7b9c-622b-40da-999c-f1f672149dce"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.6-flash",
+          "mode": "list",
+          "cachedResultName": "Gemini 3.6 Flash"
+        },
+        "text": "Analyze the uploaded expense receipt carefully.\n\nFirst, determine whether the receipt is readable enough to reliably extract its important information.\n\nReturn JSON only, using exactly these fields:\n\n{\n  \"receipt_readability\": \"Readable or Unreadable\",\n  \"merchant_name\": null,\n  \"receipt_date\": null,\n  \"receipt_number\": null,\n  \"total_amount\": null,\n  \"currency\": null,\n  \"tax_amount\": null,\n  \"expense_category\": null\n}\n\nRules:\n\n1. Set receipt_readability to \"Readable\" only if the receipt is clear enough to identify its important details reliably.\n2. Set receipt_readability to \"Unreadable\" if the receipt is blurry, distorted, obscured, or its important details cannot be read confidently.\n3. Never guess or invent receipt information.\n4. If a field cannot be read confidently, return null for that field.\n5. If the receipt is unreadable, return null for all receipt detail fields.\n6. Extract the actual total amount, not a subtotal.\n7. Return valid JSON only. Do not include Markdown or explanations.",
+        "inputType": "binary",
+        "binaryPropertyName": "Receipt_Upload",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6cbd5765-d063-4b55-b513-c5913499c2c6",
+      "name": "Analyze an image",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mG2Ryo5HWiaAlBVG",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const response = item.json.content.parts[0].text;\n\n  // Remove Markdown code fences\n  const cleaned = response\n    .replace(/```json/gi, '')\n    .replace(/```/g, '')\n    .trim();\n\n  // Convert Gemini response into a JavaScript object\n  const expense = JSON.parse(cleaned);\n\n  return {\n    json: {\n      merchant_name: expense.merchant_name ?? null,\n      receipt_date: expense.receipt_date ?? null,\n      receipt_number: expense.receipt_number ?? null,\n      total_amount:\n        expense.total_amount === null ||\n        expense.total_amount === undefined ||\n        expense.total_amount === ''\n          ? null\n          : Number(expense.total_amount),\n      currency: expense.currency ?? null,\n      tax_amount: expense.tax_amount ?? null,\n      expense_category: expense.expense_category ?? null,\n      receipt_readability: expense.receipt_readability ?? \"Unreadable\"\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "45858ff1-348b-461e-9900-53cc45faf616",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        688,
+        16
+      ],
+      "id": "9b58f6d3-9e40-4f38-8bc5-97af881b944f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json;\n\n  const errors = [];\n  if (data.receipt_readability !== \"Readable\") {\n  errors.push(\"Receipt is unreadable or could not be verified\");\n}\n\n  // Check employee information\n  if (!data[\"Employee Name\"]) {\n    errors.push(\"Employee name is missing\");\n  }\n\n  if (\n    !data[\"Employee Email\"] ||\n    !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(data[\"Employee Email\"])\n  ) {\n    errors.push(\"Employee email is missing or invalid\");\n  }\n\n  // Check expense description\n  if (\n    !data[\"Expense Description\"] ||\n    !String(data[\"Expense Description\"]).trim()\n  ) {\n    errors.push(\"Expense description is missing\");\n  }\n\n  // Check receipt information\n  if (!data.merchant_name) {\n    errors.push(\"Merchant name is missing\");\n  }\n\n  if (\n    !data.receipt_date ||\n    isNaN(Date.parse(data.receipt_date))\n  ) {\n    errors.push(\"Receipt date is missing or invalid\");\n  }\n\n  if (!data.receipt_number) {\n    errors.push(\"Receipt number is missing\");\n  }\n\n  if (\n    data.total_amount === null ||\n    data.total_amount === undefined ||\n    !Number.isFinite(Number(data.total_amount)) ||\n    Number(data.total_amount) <= 0\n  ) {\n    errors.push(\"Total amount is missing or invalid\");\n  }\n\n  // Check receipt upload\n  if (!data[\"Receipt Upload\"] || data[\"Receipt Upload\"].length === 0) {\n    errors.push(\"Receipt file is missing\");\n  }\n\n  return {\n    json: {\n      ...data,\n      validation_status: errors.length === 0 ? \"Valid\" : \"Invalid\",\n      validation_errors: errors\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        32
+      ],
+      "id": "df8d2788-c47d-4b50-a3aa-8e9b0b798606",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b657d994-e422-4a9d-b9dc-e421ebc5f929",
+              "leftValue": "={{ $json.validation_status }}",
+              "rightValue": "Valid",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1136,
+        16
+      ],
+      "id": "342abf3b-f020-47c2-8735-896a67465c95",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro",
+          "mode": "list",
+          "cachedResultName": "Task 3 - Expense Claim Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expense Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Receipt Number",
+              "lookupValue": "={{ $json.receipt_number }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1376,
+        0
+      ],
+      "id": "3dea944e-6d3b-42f0-9a48-ffbf2db3fcf3",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sNGJwWMYhlwhnuOR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1632,
+        -16
+      ],
+      "id": "009ffc5d-39fb-4720-a110-f46e99f322d4",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "635ef411-0968-47b5-8f04-ab109bcbca86",
+              "leftValue": "={{ $json[\"Receipt Number\"] || \"\" }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1856,
+        -16
+      ],
+      "id": "368c5082-22ad-4f7b-945c-26295a573b70",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json[\"Employee Email\"] }}",
+        "subject": "Duplicate Expense Claim Detected",
+        "emailType": "text",
+        "message": "=Hello {{ $json[\"Employee Name\"] }},  Your expense claim could not be processed because the receipt number {{ $json.receipt_number }} has already been submitted.  Please check your previous submission. If you believe this is a mistake, contact your manager.  Regards, Expense Claim Management System",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        -32
+      ],
+      "id": "b6ffc22c-e50b-4643-9c7a-d019324bd10c",
+      "name": "Send a message",
+      "webhookId": "0894f26f-8a54-4c77-ae73-f60247bf94c5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro",
+          "mode": "list",
+          "cachedResultName": "Task 3 - Expense Claim Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expense Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "\tEmployee Name": "={{ $json[\"Employee Name\"] }}",
+            "\tEmployee Email": "={{ $json[\"Employee Email\"] }}",
+            "Expense Category": "={{ $json[\"Expense Category\"] }}",
+            "Merchant Name": "={{ $json.merchant_name }}",
+            "Receipt Number": "={{ $json.receipt_number }}",
+            "Receipt Date": "={{ $json.receipt_date }}",
+            "Total Amount": "={{ $json.total_amount }}",
+            "\tCurrency": "={{ $json.currency }}",
+            "\tTax Amount": "={{ $json.tax_amount }}",
+            "  Expense Description": "={{ $json[\"Expense Description\"] }}",
+            "\tStatus": "Pending",
+            "\tSubmission Date": "={{ $json.submittedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "\tEmployee Name",
+              "displayName": "\tEmployee Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tEmployee Email",
+              "displayName": "\tEmployee Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expense Category",
+              "displayName": "Expense Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Merchant Name",
+              "displayName": "Merchant Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Receipt Number",
+              "displayName": "Receipt Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Receipt Date",
+              "displayName": "Receipt Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tCurrency",
+              "displayName": "\tCurrency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tTax Amount",
+              "displayName": "\tTax Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "  Expense Description",
+              "displayName": "  Expense Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tStatus",
+              "displayName": "\tStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tSubmission Date",
+              "displayName": "\tSubmission Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2080,
+        112
+      ],
+      "id": "b57d557b-1fd6-464d-b585-8813b65eb7e6",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sNGJwWMYhlwhnuOR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "noor.wali.khan.1214@gmail.com",
+        "subject": "Expense Claim Pending Manager Approval",
+        "emailType": "text",
+        "message": "={{ `Hello Manager,\n\nA new expense claim requires your approval.\n\nEMPLOYEE DETAILS\nEmployee: ${$json[\"\\tEmployee Name\"]}\nEmail: ${$json[\"\\tEmployee Email\"]}\n\nEXPENSE DETAILS\nCategory: ${$json[\"Expense Category\"]}\nDescription: ${$json[\"  Expense Description\"]}\n\nRECEIPT DETAILS\nMerchant: ${$json[\"Merchant Name\"]}\nReceipt Number: ${$json[\"Receipt Number\"]}\nAmount: ${$json[\"Total Amount\"]}\nDate: ${$json[\"Receipt Date\"]}\n\nPlease review this claim and make your decision.\n\nAPPROVE:\n${$execution.resumeUrl}&decision=approve\n\nREJECT:\n${$execution.resumeUrl}&decision=reject\n\nRegards,\nExpense Claim Management System` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2304,
+        112
+      ],
+      "id": "168334d0-8d99-4d9a-95de-49060497658a",
+      "name": "Send a message1",
+      "webhookId": "d062c0ad-0810-4831-a6cd-8f2e478b193b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2544,
+        48
+      ],
+      "id": "eaa4e6b8-2cc5-494d-af60-4d206a5bfa33",
+      "name": "Wait",
+      "webhookId": "048aedb3-0636-4236-9260-71c3329330b2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "d0338368-999c-483d-aecf-005b6e752b09",
+              "leftValue": "={{ $json.query.decision }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        3136,
+        112
+      ],
+      "id": "58c4dc2e-756a-4c4b-b191-e81e0f0e9409",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro",
+          "mode": "list",
+          "cachedResultName": "Task 3 - Expense Claim Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expense Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Receipt Number": "={{ $json[\"Receipt Number\"] }}",
+            "\tStatus": "Approved"
+          },
+          "matchingColumns": [
+            "Receipt Number"
+          ],
+          "schema": [
+            {
+              "id": "\tEmployee Name",
+              "displayName": "\tEmployee Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tEmployee Email",
+              "displayName": "\tEmployee Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expense Category",
+              "displayName": "Expense Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Merchant Name",
+              "displayName": "Merchant Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Receipt Number",
+              "displayName": "Receipt Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Receipt Date",
+              "displayName": "Receipt Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tCurrency",
+              "displayName": "\tCurrency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tTax Amount",
+              "displayName": "\tTax Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "  Expense Description",
+              "displayName": "  Expense Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tStatus",
+              "displayName": "\tStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tSubmission Date",
+              "displayName": "\tSubmission Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3392,
+        96
+      ],
+      "id": "d6045946-3629-4a68-9ab1-c6e24c0f14dd",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sNGJwWMYhlwhnuOR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Merge2').item.json[\"\\tEmployee Email\"] }}",
+        "subject": "Your Expense Claim Has Been Approved",
+        "emailType": "text",
+        "message": "={{ `Hello ${$('Merge2').item.json[\"\\tEmployee Name\"]},\n\nGood news! Your expense claim has been approved by the manager.\n\nYour claim details:\n\nMerchant: ${$('Merge2').item.json[\"Merchant Name\"]}\nReceipt Number: ${$('Merge2').item.json[\"Receipt Number\"]}\nExpense Category: ${$('Merge2').item.json[\"Expense Category\"]}\nTotal Amount: ${$('Merge2').item.json[\"Total Amount\"]}\n\nYour expense claim has been successfully approved and recorded.\n\nRegards,\nExpense Claim Management System` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3616,
+        96
+      ],
+      "id": "fb57ba36-c193-432c-a78c-a72d398b8045",
+      "name": "Send a message2",
+      "webhookId": "c57dddd8-d329-413f-8a54-674be9e73994",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2816,
+        112
+      ],
+      "id": "22e9182e-ff10-4682-aa07-227ced857e23",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro",
+          "mode": "list",
+          "cachedResultName": "Task 3 - Expense Claim Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expense Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IAlWu54j1TPM1HxIW_w-ID_8sw68WwI4VC5vHAcrVro/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Receipt Number": "={{ $('Merge2').item.json[\"Receipt Number\"] }}",
+            "\tStatus": "Rejected"
+          },
+          "matchingColumns": [
+            "Receipt Number"
+          ],
+          "schema": [
+            {
+              "id": "\tEmployee Name",
+              "displayName": "\tEmployee Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tEmployee Email",
+              "displayName": "\tEmployee Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expense Category",
+              "displayName": "Expense Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Merchant Name",
+              "displayName": "Merchant Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Receipt Number",
+              "displayName": "Receipt Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Receipt Date",
+              "displayName": "Receipt Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tCurrency",
+              "displayName": "\tCurrency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tTax Amount",
+              "displayName": "\tTax Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "  Expense Description",
+              "displayName": "  Expense Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tStatus",
+              "displayName": "\tStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "\tSubmission Date",
+              "displayName": "\tSubmission Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3392,
+        304
+      ],
+      "id": "6de757c9-ee27-43e7-b406-b915b62a50c5",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sNGJwWMYhlwhnuOR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Merge2').item.json[\"\\tEmployee Email\"] }}",
+        "subject": "Your Expense Claim Has Been Rejected",
+        "emailType": "text",
+        "message": "={{ `Hello ${$('Merge2').item.json[\"\\tEmployee Name\"]},\n\nWe regret to inform you that your expense claim has been rejected by the manager.\n\nYour claim details:\n\nMerchant: ${$('Merge2').item.json[\"Merchant Name\"]}\nReceipt Number: ${$('Merge2').item.json[\"Receipt Number\"]}\nExpense Category: ${$('Merge2').item.json[\"Expense Category\"]}\nTotal Amount: ${$('Merge2').item.json[\"Total Amount\"]}\n\nFor further information about this decision, please contact your manager.\n\nRegards,\nExpense Claim Management System` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3616,
+        304
+      ],
+      "id": "76784956-652c-45d9-a6c2-395fd27193d9",
+      "name": "Send a message3",
+      "webhookId": "4d2e8c75-c197-4560-ae14-965f1a6e98af",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json[\"Employee Email\"] }}",
+        "subject": "Your Expense Claim Could Not Be Processed",
+        "emailType": "text",
+        "message": "={{ `Hello ${$json[\"Employee Name\"]},\n\nYour expense claim could not be processed because some required information is missing or invalid.\n\nValidation errors:\n\n${$json.validation_errors.map((error, index) => `${index + 1}. ${error}`).join('\\n')}\n\nPlease correct the information and submit your expense claim again.\n\nRegards,\nExpense Claim Management System` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        192
+      ],
+      "id": "47688629-3058-4af9-98cf-a44b4c7844f7",
+      "name": "Send a message4",
+      "webhookId": "95ff97aa-89b1-4c50-aca3-de0ecff2fe1e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "TSgJsFJirPT8ZfcJ",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "a9a55136-a1ba-4719-bfaf-c5916271900c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a25d5227606d1b42a5bee87968496a3f81fb8f8d9153b6e66be34fb45af0e154"
+  },
+  "nodeGroups": [],
+  "id": "rC5pWNSJC8jtSDnO",
+  "tags": []
+}

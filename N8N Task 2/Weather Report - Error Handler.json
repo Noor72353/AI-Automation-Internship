@@ -1,0 +1,67 @@
+{
+  "name": "Weather Report - Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "01a73c96-98a0-4d94-80b0-5ef6dcf0236c",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "noor.wali.khan.1214@gmail.com",
+        "subject": "ERROR: Daily Weather Report Workflow Failed",
+        "emailType": "text",
+        "message": "=WORKFLOW EXECUTION ERROR!  The Daily Weather Report Automation workflow has encountered an error.  Workflow: Daily Weather Report Automation  Error Details: {{ $json.execution.error.message }}  Execution ID: {{ $json.execution.id }}  Please check the n8n execution history and resolve the issue.  Weather Report Error Monitoring System",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "97a9c97b-137f-481f-8a77-6d3ebf7327f9",
+      "name": "Send a message",
+      "webhookId": "0e517fa9-9852-4165-8da4-a8f959e60379",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gOwLdaPVpJoc7J7w",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "af5fdd1c-90b0-4477-bdb0-c203c9eac47a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a25d5227606d1b42a5bee87968496a3f81fb8f8d9153b6e66be34fb45af0e154"
+  },
+  "nodeGroups": [],
+  "id": "5XfDXv59u1L7wSOC",
+  "tags": []
+}
