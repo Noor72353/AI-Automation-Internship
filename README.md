@@ -100,6 +100,31 @@ New projects and learning achievements will be added as the internship progresse
 
 ---
 
+## N8N Task 4: Pinecone RAG Chatbot
+
+A Retrieval-Augmented Generation (RAG) chatbot using n8n, Pinecone, and OpenAI.
+
+**Features:**
+- PDF document upload and processing.
+- Text extraction and embedding generation.
+- Document storage in Pinecone.
+- AI-powered question answering using retrieved documents.
+
+**Folder:** `N8N Task 4/`
+
+## N8N Task 5: Slack AI Assistant
+
+An AI-powered Slack assistant built with n8n and an AI Agent.
+
+**Features:**
+- Slack message triggering.
+- Direct message handling.
+- Channel mention handling.
+- AI-generated responses.
+- Automated replies in Slack.
+
+**Folder:** `N8N Task 5/`
+
 ## About Me
 
 **Noorwali Khan**
