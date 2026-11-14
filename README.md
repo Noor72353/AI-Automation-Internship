@@ -110,7 +110,7 @@ A Retrieval-Augmented Generation (RAG) chatbot using n8n, Pinecone, and OpenAI.
 - Document storage in Pinecone.
 - AI-powered question answering using retrieved documents.
 
-**Folder:** `N8N Task 4/`
+**Project Folder:** [View Task 4 – Pinecone RAG Chatbot](https://github.com/Noor72353/AI-Automation-Internship/tree/main/N8N%20Task%204)
 
 ## N8N Task 5: Slack AI Assistant
 
@@ -123,7 +123,7 @@ An AI-powered Slack assistant built with n8n and an AI Agent.
 - AI-generated responses.
 - Automated replies in Slack.
 
-**Folder:** `N8N Task 5/`
+**Project Folder:** [View Task 5 – Slack AI Assistant](https://github.com/Noor72353/AI-Automation-Internship/tree/main/N8N%20Task%205)
 
 ## About Me
 
