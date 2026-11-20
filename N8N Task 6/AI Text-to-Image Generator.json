@@ -1,0 +1,331 @@
+{
+  "name": "AI Text-to-Image Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "AI Image Generator",
+        "formDescription": "Enter a simple idea for your image. You don't need to write a detailed prompt! Our AI will understand your idea and automatically expand it into a detailed, creative prompt before generating your image.\nAfter submitting this form, the link to your generated image will be automatically emailed to the email address you provide.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Image Prompt",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Choose Image Style",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Realistic"
+                  },
+                  {
+                    "option": "Anime"
+                  },
+                  {
+                    "option": "3D Render"
+                  },
+                  {
+                    "option": "Cyberpunk"
+                  },
+                  {
+                    "option": "Cartoon"
+                  },
+                  {
+                    "option": "Cinematic"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Your Email Address",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8b6abdea-1ad3-4d89-9e95-ea6e63c6e713",
+      "name": "On form submission",
+      "webhookId": "8aa6e2c0-5994-4e03-8548-880049db1cb5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Image Prompt'] + '\\nThe user has selected this image style: ' + $json['Choose Image Style'] + '. Make sure the generated image prompt follows this style consistently.' }}",
+        "options": {
+          "systemMessage": "You are an expert AI image prompt engineer.\n\nTransform the user's image description into a detailed, visually rich prompt suitable for an AI image-generation model.\n\nFollow these rules:\n- Preserve the user's original subject and intention.\n- Add details about the environment, lighting, colors, composition, camera angle, textures, and artistic style.\n- Choose a suitable visual style based on the user's description.\n- Do not introduce unrelated subjects or objects.\n- Improve already detailed prompts without changing their meaning.\n- Return only the final enhanced image prompt.\n- Do not include explanations, headings, or quotation marks."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7d7fb65b-686c-4cfd-baaf-cc58df145092",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        224
+      ],
+      "id": "fcf34934-e436-4e4e-b62e-bf750277bacb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tXHr9wLfkGEcZ2DK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudflare.com/client/v4/accounts/bf93d0d9ba441a217dc6974649e27bdf/ai/run/@cf/black-forest-labs/flux-1-schnell",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_CLOUDFLARE_TOKEN_REMOVED"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.output }}\"\n}",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        592,
+        0
+      ],
+      "id": "a05f9907-4cbe-4ce7-9be8-b2edcea87f4e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "result.image",
+        "options": {
+          "fileName": "={{ 'generated-image-' + $now.toFormat('yyyyMMdd-HHmmss') + '.jpg' }}",
+          "mimeType": "image/jpeg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "be473196-6678-4c76-bd6e-fe58b3e37844",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "ed0a3f71-5876-4da3-b019-e361d4985554",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "kO0AsKkoGvPYWoph",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Your Email Address'] }}",
+        "subject": "Your AI-generated image is ready!",
+        "message": "={{ 'Hello!\\n\\nYour AI-generated image is ready!\\n\\nView and download your image here:\\n' + $('Upload file').item.json.webViewLink + '\\n\\nThank you for using our AI Image Generator!' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        0
+      ],
+      "id": "1b78f0bf-2040-4040-b60e-26954c9ff745",
+      "name": "Send a message",
+      "webhookId": "ac7d93c2-e806-4c49-92ba-a558d2678e45",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "b4aPqe39u9iFyWzq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Upload file').item.json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1264,
+        0
+      ],
+      "id": "2a860bce-7329-4364-be50-7a9952ea6717",
+      "name": "Share file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "kO0AsKkoGvPYWoph",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Share file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Share file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4f8a4cee-ae66-4ddb-89f0-410736c82753",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1ff79c7319f4088ee47d1cbc824a03f6a4871947949589d8a7ef7e1c622242"
+  },
+  "nodeGroups": [],
+  "id": "UEXbWJbYncRx638o",
+  "tags": []
+}

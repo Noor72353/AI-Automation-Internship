@@ -17,7 +17,6 @@ My work focuses on automating real-world processes, integrating external service
 **Description:** An automated customer feedback management system that collects customer responses, stores them in Google Sheets, and sends Gmail notifications when a customer submits a rating of 2 or below.
 
 **Key Features:**
-
 - Customer feedback collection through an n8n form.
 - Automated Google Sheets integration.
 - Conditional evaluation of customer ratings.
@@ -35,7 +34,6 @@ My work focuses on automating real-world processes, integrating external service
 **Description:** An automated weather monitoring system that retrieves Islamabad's 7-day forecast daily at 7:00 AM Pakistan Standard Time, stores weather data in Google Sheets, and sends Gmail alerts when configured extreme weather conditions are detected.
 
 **Key Features:**
-
 - Scheduled daily workflow execution.
 - Open-Meteo API integration.
 - 7-day weather forecast retrieval.
@@ -55,7 +53,6 @@ My work focuses on automating real-world processes, integrating external service
 **Description:** An AI-powered expense claim processing system that extracts information from receipt images using Google Gemini, validates expense details, detects duplicate claims, and automates manager approval or rejection.
 
 **Key Features:**
-
 - Employee expense submission through an online form.
 - AI-based receipt information extraction.
 - Expense data validation and duplicate detection.
@@ -68,6 +65,64 @@ My work focuses on automating real-world processes, integrating external service
 
 **Project Folder:**
 [View Task 3 – Expense Claim Approval System](./N8N%20Task%203/)
+
+---
+
+### Task 4 – Pinecone RAG Chatbot
+
+**Description:** A Retrieval-Augmented Generation (RAG) chatbot built using n8n, Pinecone, and OpenAI. It processes uploaded PDF documents and answers questions using relevant information retrieved from the document database.
+
+**Key Features:**
+- PDF document upload and processing.
+- Text extraction and embedding generation.
+- Document storage in Pinecone.
+- Semantic document retrieval.
+- AI-powered question answering using retrieved documents.
+
+**Technologies:** n8n, Pinecone, OpenAI, Embeddings, RAG.
+
+**Project Folder:**
+[View Task 4 – Pinecone RAG Chatbot](./N8N%20Task%204/)
+
+---
+
+### Task 5 – Slack AI Assistant
+
+**Description:** An AI-powered Slack assistant built with n8n and an AI Agent to process Slack messages and generate automated responses.
+
+**Key Features:**
+- Slack message triggering.
+- Direct message handling.
+- Channel mention handling.
+- AI-generated responses.
+- Automated replies in Slack.
+
+**Technologies:** n8n, Slack, AI Agents, API Integration.
+
+**Project Folder:**
+[View Task 5 – Slack AI Assistant](./N8N%20Task%205/)
+
+---
+
+### Task 6 – AI Text-to-Image Generator
+
+**Description:** An AI-powered text-to-image generation system built with n8n, Google Gemini, and Cloudflare Workers AI. Users submit simple text prompts through a web form, select an image style, and automatically receive their generated image link through email.
+
+**Key Features:**
+- User-friendly image-generation form.
+- AI-powered prompt enhancement using Google Gemini.
+- Six image styles: Realistic, Anime, 3D Render, Cyberpunk, Cartoon, and Cinematic.
+- Image generation using Cloudflare Workers AI and FLUX.1 Schnell.
+- Automatic Base64-to-image-file conversion.
+- Automatic image upload to Google Drive.
+- Automatic sharing permissions (Anyone with the link – Viewer).
+- Email delivery of generated image links through Gmail.
+- Fully automated image-generation workflow.
+
+**Technologies:** n8n, Google Gemini, Cloudflare Workers AI, FLUX.1 Schnell, Google Drive, Gmail, REST API.
+
+**Project Folder:**
+[View Task 6 – AI Text-to-Image Generator](./N8N%20Task%206/)
 
 ---
 
@@ -87,43 +142,20 @@ New projects and learning achievements will be added as the internship progresse
 
 ## Technical Skills & Tools
 
-| **Category** | **Technologies** |
+| Category | Technologies |
 |---|---|
 | Workflow Automation | n8n |
-| AI & Machine Learning | Google Gemini, Ollama |
-| Data Storage | Google Sheets |
-| Communication | Gmail |
+| AI & Machine Learning | Google Gemini, Ollama, OpenAI |
+| AI Image Generation | Cloudflare Workers AI, FLUX.1 Schnell |
+| Vector Database | Pinecone |
+| Data Storage | Google Sheets, Google Drive |
+| Communication | Gmail, Slack |
 | API Integration | REST APIs, HTTP Request |
 | Programming | Python, JavaScript |
 | Local Development | Docker, Windows, WSL2 |
 | Version Control | Git, GitHub |
 
 ---
-
-## N8N Task 4: Pinecone RAG Chatbot
-
-A Retrieval-Augmented Generation (RAG) chatbot using n8n, Pinecone, and OpenAI.
-
-**Features:**
-- PDF document upload and processing.
-- Text extraction and embedding generation.
-- Document storage in Pinecone.
-- AI-powered question answering using retrieved documents.
-
-**Project Folder:** [View Task 4 – Pinecone RAG Chatbot](https://github.com/Noor72353/AI-Automation-Internship/tree/main/N8N%20Task%204)
-
-## N8N Task 5: Slack AI Assistant
-
-An AI-powered Slack assistant built with n8n and an AI Agent.
-
-**Features:**
-- Slack message triggering.
-- Direct message handling.
-- Channel mention handling.
-- AI-generated responses.
-- Automated replies in Slack.
-
-**Project Folder:** [View Task 5 – Slack AI Assistant](https://github.com/Noor72353/AI-Automation-Internship/tree/main/N8N%20Task%205)
 
 ## About Me
 
@@ -135,7 +167,6 @@ CGPA: 3.75/4.00
 Cohort Rank: 3rd
 
 **Research & Technical Interests:**
-
 - Artificial Intelligence
 - Machine Learning and Deep Learning
 - Computer Vision
