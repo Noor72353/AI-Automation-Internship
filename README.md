@@ -140,6 +140,26 @@ New projects and learning achievements will be added as the internship progresse
 
 ---
 
+## Task 7: AI Text-to-Video Generator
+
+An AI-powered text-to-video automation workflow built with **n8n, Google Gemini, and Agnes AI**.
+
+This project allows users to submit a video idea, select a preferred visual style, and receive their generated video link through email.
+
+**Key Features:**
+- AI-powered video prompt enhancement using Google Gemini.
+- Eight selectable video styles, including Cinematic, 3D Animation, Anime, and Sci-Fi.
+- Automated video generation through the Agnes AI API.
+- Automatic video-generation status checking.
+- Video downloading and uploading to Google Drive.
+- Automated email delivery of the generated video link.
+
+**Technologies:** n8n, Google Gemini API, Agnes AI API, Google Drive, Gmail, JSON.
+
+**Project Status:** Prototype / Testing. The Agnes AI video-generation API has returned a queue-full error during testing, so successful end-to-end generation is not yet verified.
+
+**Project Files:** [Task 7 README](./N8N%20Task%207/README.md) | [Workflow JSON](./N8N%20Task%207/AI-Text-to-Video-Generator.json)
+
 ## Technical Skills & Tools
 
 | Category | Technologies |
