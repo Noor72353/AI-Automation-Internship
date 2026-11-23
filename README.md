@@ -160,20 +160,60 @@ This project allows users to submit a video idea, select a preferred visual styl
 
 **Project Files:** [Task 7 README](./N8N%20Task%207/README.md) | [Workflow JSON](./N8N%20Task%207/AI-Text-to-Video-Generator.json)
 
-## Technical Skills & Tools
+## Task 8: Custom MCP Server with AI Agent Integration
 
-| Category | Technologies |
+### Project Overview
+
+Built a custom Model Context Protocol (MCP) Server using n8n and connected it to an AI Agent through a separate workflow.
+
+The project demonstrates how AI agents can discover and use external tools through MCP.
+
+### Workflows
+
+**1. MCP Server**
+- MCP Server Trigger
+- Wikipedia Tool
+- Calculator Tool
+
+**2. AI Agent Calling MCP**
+- AI Agent
+- MCP Client connection
+- Dynamic tool selection and execution
+
+### Key Features
+
+- Custom MCP Server development.
+- Integration of multiple tools through MCP.
+- AI Agent and MCP Client connectivity.
+- Wikipedia-based information retrieval.
+- Calculator-based mathematical operations.
+- Successful testing of both tools through the AI Agent.
+
+### Testing Results
+
+| Component | Status |
 |---|---|
-| Workflow Automation | n8n |
-| AI & Machine Learning | Google Gemini, Ollama, OpenAI |
-| AI Image Generation | Cloudflare Workers AI, FLUX.1 Schnell |
-| Vector Database | Pinecone |
-| Data Storage | Google Sheets, Google Drive |
-| Communication | Gmail, Slack |
-| API Integration | REST APIs, HTTP Request |
-| Programming | Python, JavaScript |
-| Local Development | Docker, Windows, WSL2 |
-| Version Control | Git, GitHub |
+| MCP Server | Tested |
+| MCP Connection | Tested |
+| Wikipedia Tool | Passed |
+| Calculator Tool | Passed |
+| AI Agent Integration | Passed |
+
+### Technologies Used
+
+- n8n
+- Model Context Protocol (MCP)
+- AI Agent
+- Wikipedia
+- Calculator
+
+### Project Files
+
+- [Task 8 README](./N8N%20Task%208/README.md)
+- [MCP Server Workflow](./N8N%20Task%208/MCP%20Server.json)
+- [AI Agent Calling MCP Workflow](./N8N%20Task%208/AI%20Agent%20Calling%20MCP.json)
+
+For complete architecture, setup instructions, workflow explanations, and testing details, see the [Task 8 README](./N8N%20Task%208/README.md).
 
 ---
 

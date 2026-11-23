@@ -1,0 +1,78 @@
+{
+  "name": "MCP Server",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "Noor"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "41c44010-c778-4dc5-b50d-beacb20fcacd",
+      "name": "MCP Server Trigger",
+      "webhookId": "6d2e4865-8fff-42b2-8504-b85776887840"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        32,
+        224
+      ],
+      "id": "824c5e25-dc49-4f87-8bc0-af3297fe3a50",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        272,
+        224
+      ],
+      "id": "179a1c73-5c61-4c1d-b45d-8d0f40f0ad83",
+      "name": "Calculator"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "dabe444e-e597-4623-a401-98bf6a29bed8",
+  "meta": {
+    "instanceId": "1a1ff79c7319f4088ee47d1cbc824a03f6a4871947949589d8a7ef7e1c622242"
+  },
+  "nodeGroups": [],
+  "id": "ZtIjRWKtgSTRrs9Y",
+  "tags": []
+}
