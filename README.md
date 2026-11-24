@@ -217,6 +217,31 @@ For complete architecture, setup instructions, workflow explanations, and testin
 
 ---
 
+## Task 9 — Customer Support RAG Chatbot with Gmail Integration
+
+**Description:** An AI-powered customer support automation system built with n8n, Google Gemini, Gmail, Google Drive, and Retrieval-Augmented Generation (RAG).
+
+The system automatically processes incoming customer emails, retrieves relevant information from a company knowledge base, generates AI-powered responses, and escalates unsupported or complicated queries to a human support representative.
+
+**Key Features:**
+- Automated customer email monitoring using Gmail Trigger.
+- RAG-based knowledge retrieval using Simple Vector Store.
+- Google Gemini-powered customer support responses.
+- Structured email classification: Supported, Unsupported, and Unrelated.
+- Automatic replies to customers.
+- Human escalation notifications for unsupported queries.
+- Automatic email labeling and read-status management.
+
+**Technologies:** n8n Cloud, Google Gemini, Gmail, Google Drive, RAG, Simple Vector Store, Gemini Embeddings.
+
+**Project Files:**
+- [Task 9 README](./N8N%20Task%209/README.md)
+- [Knowledge Base Workflow](./N8N%20Task%209/Customer%20Support%20RAG%20-%20Knowledge%20Base.json)
+- [Gmail Automation Workflow](./N8N%20Task%209/Customer%20Support%20RAG%20-%20Gmail%20Automation.json)
+- [Sample Company Knowledge Base](./N8N%20Task%209/company_knowledge.txt)
+
+---
+
 ## About Me
 
 **Noorwali Khan**
