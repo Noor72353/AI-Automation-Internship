@@ -1,0 +1,182 @@
+{
+  "name": "Customer Support RAG - Knowledge Base",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ca7b72b8-356d-4cd6-bf14-25d547333513",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1fgsFjytb_veUWGjyg5sZ8Me2kWoux6be",
+          "mode": "list",
+          "cachedResultName": "company_knowledge.txt",
+          "cachedResultUrl": "https://drive.google.com/file/d/1fgsFjytb_veUWGjyg5sZ8Me2kWoux6be/view?usp=drivesdk"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "31093671-c490-4a3a-a93e-b7cca6adca4a",
+      "name": "Download Knowledge Base",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "kO0AsKkoGvPYWoph",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "ce93d49e-ea79-46fe-937f-e58e7e7d2314",
+      "name": "Extract Knowledge Text"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "value": "techstore_knowledge_base",
+          "mode": "id"
+        },
+        "clearStore": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "b005400e-3076-412f-842a-58c68afa2679",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        672,
+        208
+      ],
+      "id": "c7aa19ac-d9dc-4698-8896-299f91d2017d",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tXHr9wLfkGEcZ2DK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        208
+      ],
+      "id": "41fce39a-8239-461d-a075-fc4853dfb82f",
+      "name": "Default Data Loader"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download Knowledge Base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Knowledge Base": {
+      "main": [
+        [
+          {
+            "node": "Extract Knowledge Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Knowledge Text": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7c48e80a-0a0c-4aa8-933f-0b1ce4a3829e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1ff79c7319f4088ee47d1cbc824a03f6a4871947949589d8a7ef7e1c622242"
+  },
+  "nodeGroups": [],
+  "id": "qn90asKEI6QHc3IX",
+  "tags": []
+}
