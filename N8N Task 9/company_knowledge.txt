@@ -1,0 +1,93 @@
+# TechStore - Customer Support Knowledge Base
+
+## 1. Company Information
+
+Company Name: TechStore
+
+Business: Online Electronics Store
+
+Products: Smartphones, laptops, tablets, headphones, smartwatches, and accessories.
+
+Customer Support Email: support@techstore.example
+
+Support Hours: Monday to Saturday, 9:00 AM to 6:00 PM.
+
+## 2. Shipping and Delivery Policy
+
+- Standard delivery takes 3–5 business days.
+- Express delivery takes 1–2 business days.
+- Delivery charges depend on the customer's location and selected shipping method.
+- Customers receive a tracking number after their order has been dispatched.
+- Customers can contact support if their order has not arrived within the expected delivery period.
+
+## 3. Return and Refund Policy
+
+- Customers can request a return within 7 days of receiving their order.
+- Products must be unused and returned with their original packaging.
+- Damaged or defective products are eligible for return inspection.
+- Refunds are processed within 5–7 business days after the returned product is inspected and approved.
+- Shipping charges are non-refundable unless the product was damaged or incorrectly delivered.
+
+## 4. Order Cancellation Policy
+
+- Customers can request cancellation before their order is dispatched.
+- Orders that have already been dispatched cannot be cancelled through the normal cancellation process.
+- Customers can contact support for assistance with dispatched orders.
+
+## 5. Payment Methods
+
+- Cash on Delivery (COD)
+- Bank Transfer
+- Debit and Credit Cards
+
+Note: Available payment methods may depend on the customer's location.
+
+## 6. Warranty Policy
+
+- Products include a manufacturer warranty where applicable.
+- Warranty duration depends on the product and manufacturer.
+- Physical damage and unauthorized repairs are not covered under standard manufacturer warranties.
+- Customers should provide their purchase receipt when requesting warranty assistance.
+
+## 7. Frequently Asked Questions
+
+Q1: How long does delivery take?
+
+A: Standard delivery takes 3–5 business days, while express delivery takes 1–2 business days.
+
+Q2: Can I return a product?
+
+A: Yes. You can request a return within 7 days of receiving your order, provided the product meets the return conditions.
+
+Q3: When will I receive my refund?
+
+A: Approved refunds are processed within 5–7 business days after product inspection.
+
+Q4: Can I cancel my order?
+
+A: Yes, if your order has not been dispatched yet.
+
+Q5: What payment methods are available?
+
+A: TechStore supports Cash on Delivery, Bank Transfer, and Debit/Credit Cards, depending on location.
+
+Q6: Does TechStore provide a warranty?
+
+A: Products include a manufacturer warranty where applicable. The warranty duration depends on the product and manufacturer.
+
+Q7: What should I do if I receive a damaged product?
+
+A: Contact customer support and provide your order details and a description of the damage. The support team will guide you through the return inspection process.
+
+Q8: How can I track my order?
+
+A: You will receive a tracking number after your order has been dispatched.
+
+## 8. Important Support Instructions
+
+- Always respond politely and professionally.
+- Answer customer questions using the information in this knowledge base.
+- Never invent company policies, prices, delivery dates, or order information.
+- If the requested information is unavailable, explain that the customer should contact the support team.
+- Do not request passwords, card numbers, or other sensitive payment information.
+- Do not promise refunds, cancellations, or replacements without confirmation from the support team.
